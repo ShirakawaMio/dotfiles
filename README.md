@@ -1,47 +1,40 @@
 # My Dotfiles
 
-个人开发环境配置文件备份。
+个人开发环境配置文件备份与自动化初始化工具。支持 **macOS** 和主流 **Linux** 发行版（Ubuntu/Debian, Fedora, Arch）。
 
-## 目录结构
-- `backup.sh`: 将本地配置复制到此目录并推送到 GitHub。
-- `setup.sh`: 在新机器上安装环境并恢复配置。
-- `.config/`: 包含 nvim, kitty 等应用的配置。
-- `.zshrc`, `.gitconfig`: 核心 Shell 和 Git 配置。
+## 🚀 一键配置新机器
 
-## 🚀 快速开始
-
-### 1. 首次设置 (在当前机器)
-初始化 Git 仓库并推送到你的 GitHub：
+在新机器上执行以下命令，即可自动安装 Homebrew (macOS)、基础软件（Git, Zsh, Neovim, Kitty 等）、Oh My Zsh，并同步你的个人配置：
 
 ```bash
-cd ~/dotfiles
-git init
-git branch -M main
-git add .
-git commit -m "Initial backup"
-
-# 替换为你的 GitHub 仓库地址
-git remote add origin https://github.com/USERNAME/dotfiles.git
-git push -u origin main
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ShirakawaMio/dotfiles/main/setup.sh)"
 ```
 
-### 2. 定期备份
-你可以手动运行备份脚本：
+## 🛠️ 包含的配置
+- **Shell**: Zsh (`.zshrc`) + Oh My Zsh 插件与主题
+- **编辑器**: Neovim (`.config/nvim`)
+- **终端**: Kitty (`.config/kitty`)
+- **Git**: 基础配置 (`.gitconfig`)
+
+## 📂 目录结构
+- `backup.sh`: 备份本地配置并推送到 GitHub。
+- `setup.sh`: 跨平台环境初始化脚本。
+- `oh-my-zsh-custom/`: 存放 Oh My Zsh 的自定义插件和主题。
+
+## 🔄 同步与备份
+
+### 手动备份
+当你修改了本地配置，运行以下脚本同步到 GitHub：
 ```bash
 ~/dotfiles/backup.sh
 ```
 
-或者设置定时任务 (Cron) 每天自动备份：
-1. 运行 `crontab -e`
-2. 添加一行 (例如每天中午 12 点备份)：
-   ```bash
-   0 12 * * * /Users/mio/dotfiles/backup.sh >> /tmp/dotfiles_backup.log 2>&1
-   ```
-
-### 3. 在新机器上恢复
-克隆仓库并运行安装脚本：
+### 自动备份
+脚本已默认尝试通过 Crontab 设置每日自动备份。你可以通过 `crontab -l` 查看任务：
 ```bash
-git clone https://github.com/USERNAME/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-./setup.sh
+0 12 * * * /Users/mio/dotfiles/backup.sh >> /Users/mio/dotfiles/backup.log 2>&1
 ```
+
+## ⚠️ 注意事项
+- **私钥与机密**: 脚本不会备份 `.ssh` 或其他包含敏感信息的文件。请确保不要手动将 API 密钥等放入此仓库。
+- **Linux 支持**: 在 Linux 上运行时，脚本会尝试使用 `sudo` 和对应的包管理器（apt, dnf, pacman）安装依赖。
