@@ -10,8 +10,9 @@ REPO_URL="https://github.com/ShirakawaMio/dotfiles.git"
 
 echo -e "${BLUE}开始初始化开发环境...${NC}"
 
-# 1. 安装 Homebrew (如果是 macOS 且未安装)
+# 1. 安装基础软件
 if [[ "$OSTYPE" == "darwin"* ]]; then
+    # --- MacOS ---
     if ! command -v brew &> /dev/null; then
         echo -e "${BLUE}未检测到 Homebrew，开始安装...${NC}"
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -24,11 +25,43 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         echo -e "${GREEN}Homebrew 已安装${NC}"
     fi
     
-    # 2. 安装基础软件 (确保 git 已安装，以便后续克隆)
     echo -e "${BLUE}安装/更新基础软件包 (git, neovim, kitty, zsh, ripgrep, node, python)...${NC}"
     brew install git neovim kitty zsh ripgrep node python
+
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # --- Linux ---
+    echo -e "${BLUE}检测到 Linux 系统，尝试安装基础软件...${NC}"
+    
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS=$ID
+    else
+        echo -e "${YELLOW}无法检测 Linux 发行版，请手动安装 git, zsh, neovim 等软件。${NC}"
+        OS="unknown"
+    fi
+
+    case $OS in
+        ubuntu|debian)
+            echo -e "${BLUE}Detected Debian/Ubuntu. Using apt...${NC}"
+            sudo apt update
+            sudo apt install -y git zsh neovim ripgrep nodejs python3 kitty
+            ;;
+        fedora)
+            echo -e "${BLUE}Detected Fedora. Using dnf...${NC}"
+            sudo dnf install -y git zsh neovim ripgrep nodejs python3 kitty
+            ;;
+        arch|manjaro)
+            echo -e "${BLUE}Detected Arch Linux. Using pacman...${NC}"
+            sudo pacman -S --noconfirm git zsh neovim ripgrep nodejs python kitty
+            ;;
+        *)
+            echo -e "${YELLOW}未知的 Linux 发行版: $OS${NC}"
+            echo -e "${YELLOW}请手动安装: git, zsh, neovim, ripgrep, nodejs, python, kitty${NC}"
+            ;;
+    esac
 else
-    echo -e "${BLUE}非 macOS 系统，跳过 Homebrew 安装。请手动安装 git 以便脚本继续。${NC}"
+    echo -e "${YELLOW}未知的操作系统: $OSTYPE${NC}"
+    echo -e "${YELLOW}请手动安装基础软件。${NC}"
 fi
 
 # 3. 克隆 Dotfiles 仓库 (关键步骤：如果不存在则克隆)
